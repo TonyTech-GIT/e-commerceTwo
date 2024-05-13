@@ -1,4 +1,4 @@
-"use client";
+// "use client";
 
 import { Button } from "@/components/ui/button";
 import PageHeader from "../_components/PageHeader";
@@ -27,11 +27,11 @@ export default function AdminProductsPage() {
 
       <ProductsTable />
 
-      <style jsx>{`
+      {/* <style jsx>{`
         .flex {
           display: flex;
         }
-      `}</style>
+      `}</style> */}
     </>
   );
 }
