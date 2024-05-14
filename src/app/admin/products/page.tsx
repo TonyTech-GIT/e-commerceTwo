@@ -12,13 +12,24 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import db from "@/db/db";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, MoreVertical, XCircle } from "lucide-react";
+import { formatCurrency, formatNumber } from "@/lib/formatters";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  ActiveToggleDropdownItem,
+  DeleteDropdownItem,
+} from "./_components/ProductActions";
 
 export default function AdminProductsPage() {
   return (
     <>
       <div className="flex justify-between items-center gap-4">
-        <PageHeader>Products</PageHeader>;
+        <PageHeader>Products</PageHeader>
         <Button asChild>
           {/* asChild makes sure it renders as a link instead of a button component... */}
           <Link href="/admin/products/new">Add Product</Link>
@@ -26,12 +37,6 @@ export default function AdminProductsPage() {
       </div>
 
       <ProductsTable />
-
-      {/* <style jsx>{`
-        .flex {
-          display: flex;
-        }
-      `}</style> */}
     </>
   );
 }
@@ -49,7 +54,8 @@ async function ProductsTable() {
     orderBy: { name: "asc" },
   });
 
-  if (products.length === 0) return <p>No products found...</p>;
+  if (products.length === 0)
+    return <p className="text-white">No products found...</p>;
 
   return (
     <Table>
@@ -68,17 +74,54 @@ async function ProductsTable() {
       </TableHeader>
       <TableBody>
         {products.map((product) => (
-          <TableRow key={product.id}>
+          <TableRow key={product.id} className="text-white">
             <TableCell>
               {product.isAvailableForPurchase ? (
-                <div>
+                <>
+                  <span className="sr-only">Available</span>
                   <CheckCircle2 className="text-white" />
-                </div>
+                </>
               ) : (
                 <>
-                  <XCircle />
+                  <span className="sr-only">Unavilable</span>
+                  <XCircle className="stroke-destructive" />
                 </>
               )}
+            </TableCell>
+
+            <TableCell>{product.name}</TableCell>
+            <TableCell>{formatCurrency(product.priceInCents / 100)}</TableCell>
+            <TableCell>{formatNumber(product._count.orders)}</TableCell>
+            <TableCell>
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <MoreVertical />
+                  <span className="sr-only">Actions</span>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem>
+                    <a download href={`/admin/products/${product.id}/download`}>
+                      Download
+                    </a>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem asChild>
+                    <Link href={`/admin/products/${product.id}/edit`}>
+                      Edit
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <ActiveToggleDropdownItem
+                    id={product.id}
+                    isAvailableForPurchase={product.isAvailableForPurchase}
+                  />
+
+                  <DeleteDropdownItem
+                    id={product.id}
+                    disabled={product._count.orders > 0}
+                  />
+                </DropdownMenuContent>
+              </DropdownMenu>
             </TableCell>
           </TableRow>
         ))}
