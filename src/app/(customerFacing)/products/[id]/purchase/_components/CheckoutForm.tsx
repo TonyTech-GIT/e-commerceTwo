@@ -48,7 +48,8 @@ export default function CheckoutForm({
         <div className="aspect-video flex-shrink-0 w-1/3 relative">
           <Image
             src={product.imagePath}
-            fill
+            width={250}
+            height={0}
             alt={product.name}
             className="object-cover"
           />
@@ -64,6 +65,7 @@ export default function CheckoutForm({
           </div>
         </div>
       </div>
+
       <Elements options={{ clientSecret }} stripe={stripePromise}>
         <Form priceInCents={product.priceInCents} productId={product.id} />
       </Elements>
@@ -81,7 +83,7 @@ function Form({
   const stripe = useStripe();
   const elements = useElements();
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMesage, setErrorMessage] = useState<string>();
+  const [errorMessage, setErrorMessage] = useState<string>();
   const [email, setEmail] = useState<string>();
 
   const handleSubmit = async (e: FormEvent) => {
@@ -107,7 +109,7 @@ function Form({
       .confirmPayment({
         elements,
         confirmParams: {
-          return_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/stripe/purchase-success `,
+          return_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/stripe/purchase-success`,
         },
       })
       .then(({ error }) => {
@@ -125,9 +127,9 @@ function Form({
       <Card>
         <CardHeader>
           <CardTitle>Checkout</CardTitle>
-          {errorMesage && (
+          {errorMessage && (
             <CardDescription className="text-destructive">
-              {errorMesage}
+              {errorMessage}
             </CardDescription>
           )}
         </CardHeader>
@@ -136,7 +138,9 @@ function Form({
           <PaymentElement />
 
           <div className="mt-4">
-            <LinkAuthenticationElement onChange={(e) => e.value.email} />
+            <LinkAuthenticationElement
+              onChange={(e) => setEmail(e.value.email)}
+            />
           </div>
         </CardContent>
 
